@@ -8,7 +8,3 @@ routes = (
     "/register_address/",
     "/create_token",
 )
-
-r = Routes()
-
-print(r)

@@ -7,9 +7,13 @@ from routes.routes import routes
 
 
 class Api:
-    def __init__(self, send: uvicorn) -> None:
+    def __init__(self, send: uvicorn, q: list, headers: list, route: str) -> None:
         self.send = send
         self.params = None
+
+    async def register_address(self, params) -> None:
+        body = [{"success": "registered"}]
+        await self.send_response(body, status=200)
 
     async def create_token(self, params: str) -> None:
         user_id = params[0].get("user_id")
@@ -58,10 +62,10 @@ async def app(scope, receive, send):
     assert scope["type"] == "http"
     q = scope["query_string"]
     h = scope["headers"]
-    route = scope["path"]
+    route = scope["path"].split("/")[1]
     logging.info(route)
 
-    api = Api(send)
+    api = Api(send, q, h, route)
 
     is_new_token, params = await api.parse_request(route, q)
     if not is_new_token:
@@ -69,7 +73,8 @@ async def app(scope, receive, send):
         logging.info(f"token: {token}  ::  params: {params}")
         is_authorised = await api.check_auth_token(token)
         if is_authorised:
-            await routes[route](send, params, api.send_response)
+            await api.__getattribute__(route)(params)
+            # await routes[route](send, params, api.send_response)
 
 
 if __name__ == "__main__":
