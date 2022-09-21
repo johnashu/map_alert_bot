@@ -7,16 +7,38 @@ from routes.routes import routes
 
 
 class Api:
-    def __init__(self, send: uvicorn, q: list, headers: list, route: str) -> None:
+    def __init__(self, scope: dict, receive: dict, send: dict, *a, **kw) -> None:
+        self.query = scope.get("query_string")
+        self.headers = scope.get("headers")
+        self.route = scope.get("path").split("/")[1]
+
+        self.scope = scope
         self.send = send
+        self.receive = receive
+
         self.params = None
 
-    async def register_address(self, params) -> None:
+        logging.info(self.route)
+
+    async def handle_scope(
+        self,
+    ) -> None:
+        is_new_token = await self.parse_request()
+        if not is_new_token:
+            self.token = (
+                dict((x, y) for x, y in self.headers).get(b"api-token").decode()
+            )
+            logging.info(f"token: {self.token}  ::  params: {self.params}")
+            is_authorised = await self.check_auth_token()
+            if is_authorised:
+                await self.__getattribute__(self.route)()
+
+    async def register_address(self) -> None:
         body = [{"success": "registered"}]
         await self.send_response(body, status=200)
 
-    async def create_token(self, params: str) -> None:
-        user_id = params[0].get("user_id")
+    async def create_token(self) -> None:
+        user_id = self.params[0].get("user_id")
         if not user_id:
             body = [{"error": bad_request_msg}]
             await self.send_response(body, status=400)
@@ -28,8 +50,8 @@ class Api:
                 {"Error": token_gen_failed, "msg": str(token)}, status=501
             )
 
-    async def check_auth_token(self, token: str) -> bool:
-        valid_token, user_id, msg = await decode_auth_token(token)
+    async def check_auth_token(self) -> bool:
+        valid_token, user_id, msg = await decode_auth_token(self.token)
         if valid_token:
             return True
         else:
@@ -38,43 +60,32 @@ class Api:
         return False
 
     async def send_response(self, body: list, status: int = 200):
-        await self.send(dict(http_response_start, **{"status": status}))
+        start = dict(http_response_start, **{"status": status})
+        await self.send(start)
         body = json.dumps(body).encode("utf-8")
-        await self.send(dict(http_response_body, **{"body": body}))
+        response = dict(http_response_body, **{"body": body})
+        await self.send(response)
 
-    async def parse_request(self, route: str, q: str) -> bool:
-        if not q:
+    async def parse_request(self) -> bool:
+        if not self.query:
             body = [{"error": empty_msg}]
             return False, await self.send_response(body, status=400)
 
-        dec = urllib.parse.unquote(q.decode())
-        params = json.loads(dec)
-        logging.info(params)
+        dec = urllib.parse.unquote(self.query.decode())
+        self.params = json.loads(dec)
+        logging.info(self.params)
 
-        if route == "/create_token/":
-            await self.create_token(params)
-            return True, params
-        return False, params
+        if self.route == "/create_token/":
+            await self.create_token()
+            return True
+        return False
 
 
 async def app(scope, receive, send):
 
     assert scope["type"] == "http"
-    q = scope["query_string"]
-    h = scope["headers"]
-    route = scope["path"].split("/")[1]
-    logging.info(route)
-
-    api = Api(send, q, h, route)
-
-    is_new_token, params = await api.parse_request(route, q)
-    if not is_new_token:
-        token = dict((x, y) for x, y in h).get(b"api-token").decode()
-        logging.info(f"token: {token}  ::  params: {params}")
-        is_authorised = await api.check_auth_token(token)
-        if is_authorised:
-            await api.__getattribute__(route)(params)
-            # await routes[route](send, params, api.send_response)
+    api = Api(scope, receive, send)
+    await api.handle_scope()
 
 
 if __name__ == "__main__":
