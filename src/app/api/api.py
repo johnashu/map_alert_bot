@@ -22,13 +22,16 @@ class Api(Routes, Messages, Token):
     ) -> None:
         is_new_token = await self.parse_request()
         if not is_new_token:
-            self.token = (
-                dict((x, y) for x, y in self.headers).get(b"api-token").decode()
-            )
-            logging.info(f"token: {self.token}  ::  params: {self.params}")
-            is_authorised = await self.check_auth_token()
-            if is_authorised:
-                await self.__getattribute__(self.route)()
+            self.token = dict((x, y) for x, y in self.headers).get(b"api-token")
+            if not self.token:
+                body = [{"error": self.no_token_found}]
+                return await self.send_response(body, status=400)
+            else:
+                self.token.decode()
+                logging.info(f"token: {self.token}  ::  params: {self.params}")
+                is_authorised = await self.check_auth_token()
+                if is_authorised:
+                    await self.__getattribute__(self.route)()
 
     async def send_response(self, body: list, status: int = 200):
         start = dict(self.http_response_start, **{"status": status})

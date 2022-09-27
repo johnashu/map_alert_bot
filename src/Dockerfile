@@ -16,7 +16,9 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3.9
     
-RUN pip3 install pipenv gunicorn uvicorn[standard] requests curlify
+# RUN pip3 install pipenv gunicorn uvicorn[standard] requests curlify
 
 # copy project
 COPY . /usr/src 
+
+RUN pip3 install -r /usr/src/requirements.txt

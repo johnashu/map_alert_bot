@@ -9,3 +9,22 @@ services:
     volumes:
       - ./src/:/usr/src/
     restart: unless-stopped
+    networks:
+      - proxy
+
+  nginx:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./src/nginx/data:/data
+      - ./src/nginx/letsencrypt:/etc/letsencrypt
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    name: proxy

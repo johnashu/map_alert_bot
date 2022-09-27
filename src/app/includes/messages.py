@@ -11,5 +11,6 @@ class Messages:
 
     empty_msg = "Empty Request"
     bad_request_msg = "Incorrect request"
+    no_token_found = "No Token Sent"
     token_refused = "Access refused  :: Incorrect token"
     token_gen_failed = "Token Generation Failed."

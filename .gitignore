@@ -3,6 +3,10 @@ _play.py
 api.env
 *.env
 
+#Nginx
+src/nginx/data/
+src/nginx/letsencrypt/
+
 logs/
 data/
 
