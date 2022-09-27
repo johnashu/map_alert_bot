@@ -41,5 +41,5 @@ watermark = f"\n\n{links['buy_link']}"
 
 ENDPOINTS = {
     "new_token": "new_token",
-    "register": "register_address",
+    "register_address": "register_address",
 }

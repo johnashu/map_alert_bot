@@ -9,7 +9,9 @@ sys.dont_write_bytecode = True
 verbose = True
 
 envs = Envs(envFile="api.env")
+# print(envs.SECRET_KEY)
 SECRET_KEY = os.getenv("SECRET_KEY", "my_precious")
+TG_API_KEY = os.getenv("TG_API_KEY", "my_precious1")
 log = start_logger(verbose=verbose)
 
 version = "1.0.0"

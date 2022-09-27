@@ -35,7 +35,7 @@ def handle_msg(update, context, to_display, api_call):
     if api_call:
         to_display = ""
         msg = update.message
-        params = [{"user_id": msg.chat.username}]
+        params = [{"user_id": msg.chat.id}]
         update_split = msg.text[1:].split()
 
         endpoint = update_split[0]
@@ -50,17 +50,6 @@ def handle_msg(update, context, to_display, api_call):
             for k, v in data.items():
                 to_display += f"{k}  ::  {v}\n"
             to_display += "</code>"
-
-        #     msg = "".join([f"{k}  ::  {v}\n" for k, v in data.items()])
-        #     logging.info(f"{res}  ::  {msg}")
-        # else:
-        #     errors = ""
-        #     try:
-        #         errors = "".join([f"{k}  ::  {v}\n" for k, v in data.items()])
-        #     except:
-        #         logging.info(f"{res}  ::  {errors}")
-
-        #     to_display = "Error Getting Data from API\n\n" + errors
 
     m = context.bot.send_message(
         chat_id=update.effective_chat.id, text=to_display, parse_mode=ParseMode.HTML

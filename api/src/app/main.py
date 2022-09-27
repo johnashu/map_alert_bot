@@ -15,5 +15,5 @@ if __name__ == "__main__":
         port=8000,
         log_level="info",
         reload=True,
-        env_file="api.env",
+        # env_file="api.env",
     )

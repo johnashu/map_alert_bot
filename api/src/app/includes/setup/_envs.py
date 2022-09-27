@@ -1,4 +1,5 @@
 from dotenv import dotenv_values, find_dotenv
+import os
 
 
 class Envs:
@@ -11,6 +12,7 @@ class Envs:
         config = dotenv_values(find_dotenv(self.envFile))
 
         for k, v in config.items():
+            print(k, v)
             # if not v:
             #     raise ValueError(f"No value for key {k} - Please update .env file!")
             try:
@@ -25,3 +27,6 @@ class Envs:
                     if v.lower() == "false"
                     else v,
                 )
+                os.environ[k] = v
+                # print('set', k, v)
+                # print(self.SECRET_KEY)
