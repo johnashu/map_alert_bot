@@ -19,7 +19,7 @@ class Routes:
                 {"Error": self.token_gen_failed, "msg": str(token)}, status=501
             )
 
-    async def send_messageto_tg_bot(
+    async def send_message_to_tg_bot(
         self, context: dict = {}, method_name: str = "sendMessage"
     ) -> None:
         import requests

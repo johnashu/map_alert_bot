@@ -30,7 +30,7 @@ def delete_msg(context: CallbackContext):
 def handle_msg(update, context, to_display, api_call):
     """Sends typing action while processing func command."""
     print(
-        f"\n\nUpdate:\n{update}\n\nContext:\n{context}\n\nupdate.message.text:\n{update.message.text}"
+        f"\n\nUpdate:\n{update}\n\nContext:\n{context}\n\nupdate.message.text:\n{update.message.text} - {type(update.message.text)}"
     )
     if api_call:
         to_display = ""
