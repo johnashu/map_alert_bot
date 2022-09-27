@@ -48,20 +48,20 @@ def base(
         #         assert address != x["owner_address"]
 
 
-def test_create_token(**kw) -> None:
-    base((create_token,), "status", status="success", **kw)
+def test_new_token(**kw) -> None:
+    base((new_token,), "status", status="success", **kw)
 
 
 if __name__ == "__main__":
     # Simple test script - execute when the app is running
     url = "http://127.0.0.1:5000"
-    create_token = "/create_token/"
+    new_token = "/new_token/"
     register = "/register_address/"
 
     token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDk2NDIzNDgsImlhdCI6MTY2MzMyODc0Mywic3ViIjoibWFmZmF6In0.kFSH1lMvKHTvd7Kn8C5COzis90IfPIQHnlpAQw1qyUk"
     headers = {"api-token": token}
 
-    kw = dict(url=url, route=create_token, headers=headers)
+    kw = dict(url=url, route=new_token, headers=headers)
     kw = dict(url=url, route=register, headers=headers)
 
     # # test request
@@ -77,4 +77,4 @@ if __name__ == "__main__":
     logging.info(f"Time ::  {et-st} for {num_req} calls")
 
     # # manual check tests. - uncomment to run.
-    # test_create_token(**kw)
+    # test_new_token(**kw)

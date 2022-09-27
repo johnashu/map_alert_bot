@@ -48,7 +48,7 @@ class Api(Routes, Messages, Token):
         dec = urllib.parse.unquote(self.query.decode())
         self.params = json.loads(dec)
 
-        if self.route == "create_token":
-            await self.create_token()
+        if self.route == "new_token":
+            await self.new_token()
             return True
         return False

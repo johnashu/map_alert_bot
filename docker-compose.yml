@@ -2,12 +2,12 @@ version: "3.7"
 services:
   api:
     container_name: api
-    build: ./src
-    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0 --log-level info --access-logfile -
+    build: ./api/src
+    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0 --log-level info --access-logfile - --reload
     ports:
       - "8000:8000"
     volumes:
-      - ./src/:/usr/src/
+      - ./api/src/:/usr/src/
     restart: unless-stopped
     networks:
       - proxy
@@ -20,8 +20,8 @@ services:
       - '81:81'
       - '443:443'
     volumes:
-      - ./src/nginx/data:/data
-      - ./src/nginx/letsencrypt:/etc/letsencrypt
+      - ./nginx/src/data:/data
+      - ./nginx/src/letsencrypt:/etc/letsencrypt
     networks:
       - proxy
 

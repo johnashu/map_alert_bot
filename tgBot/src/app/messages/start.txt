@@ -1,0 +1,3 @@
+Welcome to the Map Alerts Bot
+
+click /help to continue..

@@ -3,7 +3,7 @@ class Routes:
         body = [{"success": "registered"}]
         await self.send_response(body, status=200)
 
-    async def create_token(self) -> None:
+    async def new_token(self) -> None:
         user_id = self.params[0].get("user_id")
         if not user_id:
             body = [{"error": self.bad_request_msg}]
