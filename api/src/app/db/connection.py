@@ -4,18 +4,16 @@ import asyncio
 
 class DbConnect:
 
-    def __init__(self) -> None:
-        pass
-
-    async def get_connection(self, dbname, user, password):
+    def __init__(self, dbname, user, password) -> None:
         self.dbname = dbname
         self.user = user
         self.password = password 
 
+    async def get_connection(self, ):        
+
         async with await psycopg.AsyncConnection.connect(
             f"dbname={self.dbname} user={self.user} password={self.password}"
         ) as self.aconn:
-            print(self.aconn)
             async with self.aconn.cursor() as self.acur:
                 print(self.acur)
                 await self.acur.execute(
