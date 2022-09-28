@@ -4,4 +4,4 @@ pipenv
 curlify
 pyJWT
 gunicorn
-psycopg
+psycopg[binary]
