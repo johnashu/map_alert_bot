@@ -4,7 +4,7 @@
 from functools import wraps
 import telegram
 
-
+# Check out Version 20..
 def send_typing_action(func):
     """Sends typing action while processing func command."""
 

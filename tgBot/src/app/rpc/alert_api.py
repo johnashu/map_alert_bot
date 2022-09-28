@@ -20,6 +20,8 @@ def get_map_data(
     route: str, url: str = BASE_URL, token: str = None, params: list = []
 ) -> tuple:
 
+    return True, params[0]
+
     # new_token = "/new_token/"
     # register = "/register_address/"
 
@@ -28,14 +30,17 @@ def get_map_data(
     kw = dict(url=url, route=route, headers=headers)
 
     params = json.dumps(params)
-    print(params)
 
     st = datetime.datetime.now()
-    response = make_request(params, **kw)
-    et = datetime.datetime.now()
-    taken = et - st
-    logging.info(
-        f"Time ::  {taken}s\n\nRequests Per Sec  ::  {taken.total_seconds()}\n"
-    )
-
-    return True, response
+    try:
+        response = make_request(params, **kw)
+        et = datetime.datetime.now()
+        taken = et - st
+        logging.info(
+            f"Time ::  {taken}s\n\nRequests Per Sec  ::  {taken.total_seconds()}\n"
+        )
+        return True, response.json()
+    except Exception as e:
+        msg = f"Something Happened :: {e}"
+        logging.error(msg)
+    return False, msg
