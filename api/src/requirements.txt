@@ -4,3 +4,4 @@ pipenv
 curlify
 pyJWT
 gunicorn
+psycopg
