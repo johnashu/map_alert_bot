@@ -12,7 +12,6 @@ class Envs:
         config = dotenv_values(find_dotenv(self.envFile))
 
         for k, v in config.items():
-            print(k, v)
             # if not v:
             #     raise ValueError(f"No value for key {k} - Please update .env file!")
             try:

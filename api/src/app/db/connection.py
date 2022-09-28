@@ -1,24 +1,30 @@
 import psycopg
 import asyncio
-from api.src.app.includes.config import *
 
 
 class DbConnect:
-    async def get_connection(self):
+
+    def __init__(self) -> None:
+        pass
+
+    async def get_connection(self, dbname, user, password):
+        self.dbname = dbname
+        self.user = user
+        self.password = password 
 
         async with await psycopg.AsyncConnection.connect(
-            dbname, user, password
-        ) as aconn:
-            print(aconn)
-            async with aconn.cursor() as acur:
-                print(acur)
-                await acur.execute(
+            f"dbname={self.dbname} user={self.user} password={self.password}"
+        ) as self.aconn:
+            print(self.aconn)
+            async with self.aconn.cursor() as self.acur:
+                print(self.acur)
+                await self.acur.execute(
                     "INSERT INTO test (num, data) VALUES (%s, %s)", (100, "abc'def")
                 )
-                await acur.execute("SELECT * FROM test")
-                await acur.fetchone()
+                await self.acur.execute("SELECT * FROM test")
+                await self.acur.fetchone()
                 # will return (1, 100, "abc'def")
-                async for record in acur:
+                async for record in self.acur:
                     print(record)
 
 
