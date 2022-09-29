@@ -4,6 +4,7 @@ import curlify
 import logging, json
 import datetime
 from includes.config import BASE_URL, envs
+from tools.utils import parse_data, flatten, build_dict
 
 
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s]: %(message)s")
@@ -17,19 +18,24 @@ def make_request(params: dict, url: str, route: str, headers: list = None) -> li
 
 
 def get_map_data(
-    route: str, url: str = BASE_URL, token: str = None, params: list = []
+    route: str,
+    url: str = BASE_URL,
+    token: str = None,
+    params: list = [],
+    msg=None,
+    update_id: str = None,
 ) -> tuple:
-
-    return True, params[0]
 
     # new_token = "/new_token/"
     # register = "/register_address/"
+    params = json.dumps(params)
+
+    if route == "new_token":
+        params = json.dumps(build_dict(msg, update_id))
+        logging.info(params)
 
     headers = {"api-token": envs.ALERT_API_TOKEN}
-
     kw = dict(url=url, route=route, headers=headers)
-
-    params = json.dumps(params)
 
     st = datetime.datetime.now()
     try:

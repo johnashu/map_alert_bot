@@ -19,7 +19,6 @@ from tools.utils import *
 from includes.config import *
 from messages.msg_templates import Templates
 
-
 logging.info(f"{bot_name} Bot started")
 
 
@@ -31,23 +30,21 @@ class MapBot:
         )
 
     # @send_typing_action
-    async def handle_msg(self, msg, to_display, api_call):
+    async def handle_msg(self, update, to_display, api_call):
         """Sends typing action while processing func command."""
-        # print(
-        #     f"\n\nUpdate:\n{update}\n\nContext:{context}"
-        # )
 
         if api_call:
             to_display = ""
-            params = [{"user_id": msg.chat.id}]
+            # # params = [{"user_id": update.chat.id}]
+            # update_split = msg.text[1:].split()
+            msg = update.message
+            update_id = update.update_id
+            endpoint = msg.text[1:]
 
-            update_split = msg.text[1:].split()
+            # if len(update_split) > 1:
+            #     params.update({"params": update_split[1:]})
 
-            endpoint = update_split[0]
-            if len(update_split) > 1:
-                params.update({"params": update_split[1:]})
-
-            res, data = get_map_data(endpoint, params=params)
+            res, data = get_map_data(endpoint, msg=msg, update_id=update_id)
             if res:
                 # to_display += "<code>"
                 if isinstance(data, dict):
@@ -65,7 +62,6 @@ class MapBot:
         await context.bot.delete_message(
             chat_id=update.effective_chat.id, message_id=update.message.message_id
         )
-
         await context.job_queue.run_once(delete_msg, 10, context=m)
 
     async def help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -93,7 +89,8 @@ class MapBot:
     async def handle_endpoints(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ):
-        to_display = await self.handle_msg(update.message, None, True)
+        print(f"\n\nUpdate:\n{update}\n\nContext:{context}")
+        to_display = await self.handle_msg(update, None, True)
         print(to_display)
         m = await context.bot.send_message(
             chat_id=update.effective_chat.id, text=to_display, parse_mode=ParseMode.HTML

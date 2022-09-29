@@ -1,0 +1,36 @@
+{
+    "update_id": 216655896,
+    "message": {
+        "chat": {
+            "id": 486589942,
+            "type": "<ChatType.PRIVATE>",
+            "first_name": "Maffaz",
+            "username": "MaffazO"
+        },
+        "text": "/new_token",
+        "group_chat_created": False,
+        "entities": [
+            {
+                "length": 10,
+                "type": "<MessageEntityType.BOT_COMMAND>",
+                "offset": 0
+            }
+        ],
+        "new_chat_members": [],
+        "new_chat_photo": [],
+        "message_id": 530,
+        "delete_chat_photo": False,
+        "caption_entities": [],
+        "date": 1664405430,
+        "supergroup_chat_created": False,
+        "photo": [],
+        "channel_chat_created": False,
+        "from": {
+            "is_bot": False,
+            "username": "MaffazO",
+            "first_name": "Maffaz",
+            "id": 486589942,
+            "language_code": "en"
+        }
+    }
+}

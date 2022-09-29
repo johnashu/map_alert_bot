@@ -51,3 +51,90 @@ def get_places(x):
     for x in l:
         c += 1
     return c
+
+
+def flatten(d: dict) -> None:
+    """Flatten a nested dictionary.
+    Args:
+        d (dict): nested dictionary to flatten
+    Returns:
+        dict: flattened dictionary.
+    """
+    out = {}
+    if d:
+        if isinstance(d, str):
+            import ast
+
+            try:
+                d = ast.literal_eval(d)
+            except (ValueError, SyntaxError):
+                pass
+        try:
+            for key, val in d.items():
+                print(key)
+                if key == "chat":
+                    out["chat_id"] = val["id"]
+                if key == "from":
+                    out["user_id"] = val["id"]
+                if isinstance(val, dict):
+                    val = [val]
+                if isinstance(val, list):
+                    for subdict in val:
+                        deeper = flatten(subdict).items()
+                        out.update(
+                            {
+                                key2: val2
+                                for key2, val2 in deeper
+                                if key2 not in out.keys()
+                            }
+                        )
+                else:
+                    out[key] = val
+
+        except AttributeError as e:
+            pass
+    return out
+
+
+def parse_data(context: dict) -> None:
+    cols_required = [
+        "update_id",
+        "chat_id",
+        "user_id",
+        "first_name",
+        "username",
+        "text",
+        "message_id",
+        "date",
+        "language_code",
+        "is_bot",
+        "pub_key",
+        "is_validator",
+    ]
+    parsed = {}
+    for key, val in context.items():
+        if key in cols_required:
+            print(key)
+            parsed[key] = val
+    return parsed
+
+
+def build_dict(m, update_id) -> dict:
+    from datetime import datetime as dt
+
+    return {
+        "update_id": update_id,
+        "chat_id": m.chat.id,
+        "user_id": m["from"].id,
+        "first_name": m.chat.first_name,
+        "username": m.chat.username,
+        "text": m.text,
+        "message_id": m.message_id,
+        "language_code": m["from"].language_code,
+        "is_bot": m["from"].is_bot,
+    }
+
+
+# d = flatten(tg_data)
+# print(d)
+# parse_data(d)
