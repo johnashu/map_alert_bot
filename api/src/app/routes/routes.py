@@ -1,6 +1,7 @@
 # from db.main import database
 from db.connection import DbConnect
 
+# from db.main import database
 from datetime import datetime as dt
 import logging as log
 
@@ -19,11 +20,13 @@ class Routes(DbConnect):
         else:
             res, token = await self.encode_auth_token(user_id)
             if res:
-                await self.database(
-                    "insert",
-                    self.params.update(
-                        dict(is_validator=True, pub_key=token, date=dt.now())
-                    ),
+                self.params.update(
+                    dict(is_validator=True, pub_key=token, date=dt.now())
+                )
+                log.error(self.params)
+                await self.get_connection(
+                    self.params,
+                    method="insert",
                     **dict(table="users"),
                 )
                 return await self.send_response({"api-token": token}, status=200)

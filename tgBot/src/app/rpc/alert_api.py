@@ -45,7 +45,7 @@ def get_map_data(
         logging.info(
             f"Time ::  {taken}s\n\nRequests Per Sec  ::  {taken.total_seconds()}\n"
         )
-        return True, response.json()
+        return True, response
     except Exception as e:
         msg = f"Something Happened :: {e}"
         logging.error(msg)

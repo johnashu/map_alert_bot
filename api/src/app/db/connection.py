@@ -11,29 +11,24 @@ class DbConnect:
     #     self.user = user
     #     self.password = password
 
-    async def database(self, method, *a, **kw):
-        # db = DbConnect(POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD)
-        await self.get_connection(
-            POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, method=method, *a, **kw
-        )
-
     async def get_connection(
         self,
-        dbname,
-        user,
-        password,
         *a,
         table: str = "test",
         method: str = "select",
         **kw,
     ):
-        self.dbname = dbname
-        self.user = user
-        self.password = password
 
         self.table = table
+        import os
+
         async with await psycopg.AsyncConnection.connect(
-            f"dbname={self.dbname} user={self.user} password={self.password}"
+            # f"""
+            # dbname={self.dbname}
+            # user={self.user}
+            # password={self.password}
+            # """
+            os.environ["DATABASE_URL"]
         ) as self.aconn:
             async with self.aconn.cursor() as self.acur:
                 await self.__getattribute__(method)(*a, **kw)
