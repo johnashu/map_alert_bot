@@ -2,34 +2,19 @@ import psycopg
 import asyncio
 import logging
 
-from includes.config import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
-
 
 class DbConnect:
-    # def __init__(self, dbname, user, password) -> None:
-    #     self.dbname = dbname
-    #     self.user = user
-    #     self.password = password
-
     async def get_connection(
         self,
         *a,
+        DATABASE_URL: str = None,
         table: str = "test",
         method: str = "select",
         **kw,
     ):
-
         self.table = table
-        import os
-
-        async with await psycopg.AsyncConnection.connect(
-            # f"""
-            # dbname={self.dbname}
-            # user={self.user}
-            # password={self.password}
-            # """
-            os.environ["DATABASE_URL"]
-        ) as self.aconn:
+        async with await psycopg.AsyncConnection.connect(DATABASE_URL) as self.aconn:
+            logging.info(DATABASE_URL)
             async with self.aconn.cursor() as self.acur:
                 await self.__getattribute__(method)(*a, **kw)
 
@@ -44,7 +29,7 @@ class DbConnect:
             return await self.handle_result(await self.acur.execute(SQL), SQL)
         except psycopg.errors.DuplicateTable as e:
             logging.error(e)
-            return ""
+            return False, e
 
     async def insert(self, vals: dict):
         cols, vals, _str = self.list_to_str(vals)
@@ -64,10 +49,9 @@ class DbConnect:
 
     async def select(self, fetch: int = 2, **kw):
         # fetchone = 1, fetchmany = 2 fetchall = 3
-
         fetches = {1: "fetchone", 2: "fetchmany", 3: "fetchall"}
 
-        SQL = f"SELECT * FROM {self.table} "
+        SQL = f"SELECT * FROM {self.table}"
 
         await self.acur.execute(SQL)
         get = self.acur.__getattribute__(fetches[fetch])

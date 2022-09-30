@@ -1,7 +1,6 @@
 #
 # By Maffaz 2021 - maffaz.one
 #
-from time import sleep
 from telegram.ext import (
     CommandHandler,
     filters,
@@ -23,6 +22,14 @@ logging.info(f"{bot_name} Bot started")
 
 
 class MapBot:
+    # async def delete_in_q(self, update, context, delete_msg, m):
+    #     # Not working on V20.. Check it out.. ..
+
+    #     await context.bot.delete_message(
+    #         chat_id=update.effective_chat.id, message_id=update.message.message_id
+    #     )
+    #     await context.job_queue.run_once(delete_msg, 10, context=m)
+
     async def delete_msg(self, context: CallbackContext):
         await context.bot.delete_message(
             chat_id=context.job.context.chat.id,
@@ -33,36 +40,26 @@ class MapBot:
     async def handle_msg(self, update, to_display, api_call):
         """Sends typing action while processing func command."""
 
-        if api_call:
-            to_display = ""
-            # # params = [{"user_id": update.chat.id}]
-            # update_split = msg.text[1:].split()
-            msg = update.message
-            update_id = update.update_id
-            endpoint = msg.text[1:]
+        try:
+            if api_call:
+                to_display = ""
+                msg = update.message
+                update_id = update.update_id
+                endpoint = msg.text[1:]
 
-            # if len(update_split) > 1:
-            #     params.update({"params": update_split[1:]})
+                res, data = get_map_data(endpoint, msg=msg, update_id=update_id)
+                if res:
+                    # to_display += "<code>"
+                    if isinstance(data, dict):
+                        for k, v in data.items():
+                            to_display += f"<b>{k}</b>  ::  {v}\n"
+                    # to_display += "</code>"
+                else:
+                    to_display += str(data)
 
-            res, data = get_map_data(endpoint, msg=msg, update_id=update_id)
-            if res:
-                # to_display += "<code>"
-                if isinstance(data, dict):
-                    for k, v in data.items():
-                        to_display += f"<b>{k}</b>  ::  {v}\n"
-                # to_display += "</code>"
-            else:
-                to_display += str(data)
-
-        return to_display
-
-    async def delete_in_q(self, update, context, delete_msg, m):
-        # Not working on V20.. Check it out.. ..
-
-        await context.bot.delete_message(
-            chat_id=update.effective_chat.id, message_id=update.message.message_id
-        )
-        await context.job_queue.run_once(delete_msg, 10, context=m)
+            return to_display
+        except Exception as e:
+            return Templates.GenericError
 
     async def help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg = open_file(help_msg_file)
@@ -73,8 +70,8 @@ class MapBot:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
     async def error(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        err = f"Update {update} caused error {context.error}"
-        logging.info(err)
+        err = Templates.error_reply(f"Update {update} caused error", context.error)
+        logging.error(err)
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=err,

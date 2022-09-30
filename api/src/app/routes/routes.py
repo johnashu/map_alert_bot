@@ -1,9 +1,7 @@
-# from db.main import database
 from db.connection import DbConnect
+from includes.config import DATABASE_URL, log
 
-# from db.main import database
 from datetime import datetime as dt
-import logging as log
 
 
 class Routes(DbConnect):
@@ -11,8 +9,10 @@ class Routes(DbConnect):
         body = [{"success": "registered"}]
         await self.send_response(body, status=200)
 
+    async def get_validator_summary(self, address: str) -> None:
+        pass
+
     async def new_token(self) -> None:
-        log.error(self.params)
         user_id = self.params.get("user_id")
         if not user_id:
             body = [{"error": self.bad_request_msg}]
@@ -23,9 +23,9 @@ class Routes(DbConnect):
                 self.params.update(
                     dict(is_validator=True, pub_key=token, date=dt.now())
                 )
-                log.error(self.params)
                 await self.get_connection(
                     self.params,
+                    DATABASE_URL=DATABASE_URL,
                     method="insert",
                     **dict(table="users"),
                 )
