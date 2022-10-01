@@ -95,7 +95,7 @@ class MapBot:
         # await self.delete_in_q(update, context, self.delete_msg, m)
 
     def main(self):
-        application = ApplicationBuilder().token(envs.API_KEY).build()
+        application = ApplicationBuilder().token(envs.TG_API_KEY).build()
 
         for c, m in list(MENU_ITEMS.items()):
             cmd = CommandHandler(c, self.__getattribute__(m))

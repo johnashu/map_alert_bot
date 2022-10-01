@@ -70,10 +70,29 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@alertsDb/alertsDb
     networks:
       - postgres
+      - api2api
       # - proxy
     depends_on:
       # - nginx
       - alertsDb
+
+    
+  bot:
+    container_name: tgBot
+    build: ./tgBot/src
+    command: python3 /usr/src/app/main.py
+    environment:
+      - TG_API_KEY=${TG_API_KEY} 
+      - ALERT_API_BASE_URL=${ALERT_API_BASE_URL}  
+      - IS_DOCKER=True  
+    volumes:
+      - ./tgBot/src/:/usr/src/
+      # - "/codebase:/codebase"
+      # - "/storage:/storage"
+    restart: always
+    networks:
+      - api2api
+
 
   # nginx:
   #   image: 'jc21/nginx-proxy-manager:latest'
@@ -92,6 +111,8 @@ networks:
   # proxy:
   #   name: proxy
   postgres:
+    driver: bridge
+  api2api:
     driver: bridge
 
 volumes:

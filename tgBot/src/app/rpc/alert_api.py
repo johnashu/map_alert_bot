@@ -3,7 +3,7 @@ import requests
 import curlify
 import logging, json
 import datetime
-from includes.config import BASE_URL, envs
+from includes.config import ALERT_API_BASE_URL, envs
 from tools.utils import parse_data, flatten, build_dict
 
 
@@ -19,7 +19,7 @@ def make_request(params: dict, url: str, route: str, headers: list = None) -> li
 
 def get_map_data(
     route: str,
-    url: str = BASE_URL,
+    url: str = ALERT_API_BASE_URL,
     token: str = None,
     params: list = [],
     msg=None,

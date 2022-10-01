@@ -6,3 +6,4 @@ pyJWT
 gunicorn
 psycopg[binary]
 nest_asyncio
+python-dotenv

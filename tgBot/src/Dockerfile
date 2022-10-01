@@ -1,11 +1,13 @@
-FROM ubuntu:20.04
-ARG DEBIAN_FRONTEND=noninteractive
+FROM python:3.8-slim
 
-# set environment variables..j.
-# Prevents Python from writing pyc files to disc (equivalent to python -B option)
+ENV PYTHONFAULTHANDLER=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONHASHSEED=random
 ENV PYTHONDONTWRITEBYTECODE 1
-# PYTHONUNBUFFERED: Prevents Python from buffering stdout and stderr (equivalent to python -u option)
-ENV PYTHONUNBUFFERED 1
+ENV PIP_NO_CACHE_DIR=off
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on
+ENV PIP_DEFAULT_TIMEOUT=100
+
 
 # # set work directory
 WORKDIR /usr/src/app

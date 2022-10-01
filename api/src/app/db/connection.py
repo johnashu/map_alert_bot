@@ -1,9 +1,11 @@
 import psycopg
-import asyncio
-import logging
+from includes.config import DATABASE_URL, log
 
 
 class DbConnect:
+    def __init__(self, **kw) -> None:
+        super(DbConnect, self).__init__(**kw)
+
     async def get_connection(
         self,
         *a,
@@ -14,9 +16,22 @@ class DbConnect:
     ):
         self.table = table
         async with await psycopg.AsyncConnection.connect(DATABASE_URL) as self.aconn:
-            logging.info(DATABASE_URL)
+            log.info(DATABASE_URL)
             async with self.aconn.cursor() as self.acur:
                 await self.__getattribute__(method)(*a, **kw)
+
+    async def insert_if_not_added(self, table) -> bool:
+        self.table = table
+        if not await self.select(fetch=1, where=f"id = {self.params.get('user_id')}"):
+            res = await self.get_connection(
+                self.params,
+                DATABASE_URL=DATABASE_URL,
+                method="insert",
+                **dict(table=table),
+            )
+            if not res:
+                return False
+        return True
 
     async def create_table(self, vals: dict):
         try:
@@ -28,7 +43,7 @@ class DbConnect:
                 """
             return await self.handle_result(await self.acur.execute(SQL), SQL)
         except psycopg.errors.DuplicateTable as e:
-            logging.error(e)
+            log.error(e)
             return False, e
 
     async def insert(self, vals: dict):
@@ -37,7 +52,7 @@ class DbConnect:
         try:
             return await self.handle_result(await self.acur.execute(SQL, vals), SQL)
         except psycopg.errors.UniqueViolation as e:
-            logging.error(e)
+            log.error(e)
 
     async def update(self, vals: dict, condition="id = 1"):
         set_str = self.dict_to_str(vals)
@@ -45,26 +60,31 @@ class DbConnect:
         try:
             return await self.handle_result(await self.acur.execute(SQL), SQL)
         except psycopg.errors.UndefinedColumn as e:
-            logging.error(e)
+            log.error(e)
 
-    async def select(self, fetch: int = 2, **kw):
+    async def select(self, fetch: int = 2, where: str = False, **kw):
         # fetchone = 1, fetchmany = 2 fetchall = 3
         fetches = {1: "fetchone", 2: "fetchmany", 3: "fetchall"}
 
-        SQL = f"SELECT * FROM {self.table}"
+        where = f"WHERE {where}"
+        if not where:
+            where = ""
+
+        SQL = f"SELECT * FROM {self.table}" + where
 
         await self.acur.execute(SQL)
         get = self.acur.__getattribute__(fetches[fetch])
         results = await get(**kw)
-        logging.info(results)
         for record in results:
-            logging.info(f"{fetches[fetch].__repr__()}: {record}")
+            log.info(f"{fetches[fetch].__repr__()}: {record}")
+
+        return False
 
     @staticmethod
-    async def handle_result(res, SQL) -> None:
-        logging.info(f"Command Executed:\n\n\t{SQL}")
+    async def handle_result(res, SQL: str) -> None:
+        log.info(f"Command Executed:\n\n\t{SQL}")
         if res:
-            logging.info(f"Result:\n{res}")  # __str__())
+            log.info(f"Result:\n{res}")  # __str__())
 
     @staticmethod
     def list_to_str(vals: dict) -> tuple:
@@ -96,9 +116,3 @@ class DbConnect:
                 vals_str += f"""{x} = '{vals[x]}', """
         vals_str += f"""{l} = '{vals[l]}'"""
         return vals_str
-
-
-if __name__ == "__main__":
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    db = DbConnect()
-    asyncio.run(db.get_connection())

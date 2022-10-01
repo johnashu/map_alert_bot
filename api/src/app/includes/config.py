@@ -9,7 +9,7 @@ sys.dont_write_bytecode = True
 verbose = True
 
 envs = Envs(envFile=".env")
-# print(envs.SECRET_KEY)
+print(envs.SECRET_KEY)
 SECRET_KEY = os.getenv("SECRET_KEY", "my_precious")
 TG_API_KEY = os.getenv("TG_API_KEY", "my_precious1")
 

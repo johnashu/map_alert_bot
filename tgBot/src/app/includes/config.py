@@ -15,9 +15,8 @@ verbose = True
 envs = Envs(envFile=".env")
 log = start_logger(verbose=verbose)
 
-
-BASE_URL = "http://api:8000/"
-BASE_URL = "http://127.0.0.1:8000/"
+# if not envs.IS_DOCKER:
+#     ALERT_API_BASE_URL = "http://127.0.0.1:8000/"
 
 
 version = "1.0.0"

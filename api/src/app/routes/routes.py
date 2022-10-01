@@ -23,12 +23,13 @@ class Routes(DbConnect):
                 self.params.update(
                     dict(is_validator=True, pub_key=token, date=dt.now())
                 )
-                await self.get_connection(
-                    self.params,
-                    DATABASE_URL=DATABASE_URL,
-                    method="insert",
-                    **dict(table="users"),
-                )
+                await self.insert_if_not_added(table="users")
+                # await self.get_connection(
+                #     self.params,
+                #     DATABASE_URL=DATABASE_URL,
+                #     method="insert",
+                #     **dict(table="users"),
+                # )
                 return await self.send_response({"api-token": token}, status=200)
             return await self.send_response(
                 {"Error": self.token_gen_failed, "msg": str(token)}, status=501
