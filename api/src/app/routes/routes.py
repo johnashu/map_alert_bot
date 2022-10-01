@@ -5,17 +5,23 @@ from datetime import datetime as dt
 
 
 class Routes(DbConnect):
-    async def register_address(self) -> None:
-        body = [{"success": "registered"}]
+    async def register(self) -> None:
+        body = {"success": "registered"}
         await self.send_response(body, status=200)
 
-    async def get_validator_summary(self, address: str) -> None:
-        pass
+    async def validator_summary(self) -> None:
+        address = self.params.get("value")
+        if not address:
+            body = {"error": self.bad_request_msg}
+            await self.send_response(body, status=400)
+        else:
+            body = {"success": f"Validator Summary for {address}"}
+            await self.send_response(body, status=200)
 
     async def new_token(self) -> None:
         user_id = self.params.get("user_id")
         if not user_id:
-            body = [{"error": self.bad_request_msg}]
+            body = {"error": self.bad_request_msg}
             await self.send_response(body, status=400)
         else:
             res, token = await self.encode_auth_token(user_id)
@@ -23,13 +29,13 @@ class Routes(DbConnect):
                 self.params.update(
                     dict(is_validator=True, pub_key=token, date=dt.now())
                 )
-                await self.insert_if_not_added(table="users")
-                # await self.get_connection(
-                #     self.params,
-                #     DATABASE_URL=DATABASE_URL,
-                #     method="insert",
-                #     **dict(table="users"),
-                # )
+
+                await self.get_connection(
+                    self.params,
+                    DATABASE_URL=DATABASE_URL,
+                    method="insert",
+                    **dict(table="users"),
+                )
                 return await self.send_response({"api-token": token}, status=200)
             return await self.send_response(
                 {"Error": self.token_gen_failed, "msg": str(token)}, status=501

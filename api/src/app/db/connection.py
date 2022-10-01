@@ -1,5 +1,6 @@
+from os import remove
 import psycopg
-from includes.config import DATABASE_URL, log
+from includes.config import DATABASE_URL, log, create_data
 
 
 class DbConnect:
@@ -10,28 +11,19 @@ class DbConnect:
         self,
         *a,
         DATABASE_URL: str = None,
-        table: str = "test",
-        method: str = "select",
+        table: str = "users",
+        method: str = "create_table",
         **kw,
     ):
         self.table = table
         async with await psycopg.AsyncConnection.connect(DATABASE_URL) as self.aconn:
             log.info(DATABASE_URL)
             async with self.aconn.cursor() as self.acur:
-                await self.__getattribute__(method)(*a, **kw)
-
-    async def insert_if_not_added(self, table) -> bool:
-        self.table = table
-        if not await self.select(fetch=1, where=f"id = {self.params.get('user_id')}"):
-            res = await self.get_connection(
-                self.params,
-                DATABASE_URL=DATABASE_URL,
-                method="insert",
-                **dict(table=table),
-            )
-            if not res:
-                return False
-        return True
+                try:
+                    await self.__getattribute__(method)(*a, **kw)
+                except psycopg.errors.UndefinedColumn as e:
+                    log.info(f"Cannot find Table, Creating New table..")
+                    await self.create_table(create_data)
 
     async def create_table(self, vals: dict):
         try:
@@ -50,9 +42,10 @@ class DbConnect:
         cols, vals, _str = self.list_to_str(vals)
         SQL = f"INSERT INTO {self.table} {cols} VALUES {_str}"
         try:
-            return await self.handle_result(await self.acur.execute(SQL, vals), SQL)
+            res = await self.acur.execute(SQL, vals)
+            return True, await self.handle_result(res, SQL, log.info)
         except psycopg.errors.UniqueViolation as e:
-            log.error(e)
+            return False, await self.handle_result(e, SQL, log.error)
 
     async def update(self, vals: dict, condition="id = 1"):
         set_str = self.dict_to_str(vals)
@@ -77,19 +70,20 @@ class DbConnect:
         results = await get(**kw)
         for record in results:
             log.info(f"{fetches[fetch].__repr__()}: {record}")
-
         return False
 
     @staticmethod
-    async def handle_result(res, SQL: str) -> None:
-        log.info(f"Command Executed:\n\n\t{SQL}")
+    async def handle_result(res, SQL: str, level=log.info) -> None:
+        level(f"Command Executed:\n\n\t{SQL}")
         if res:
-            log.info(f"Result:\n{res}")  # __str__())
+            level(f"Result:\n{res}")  # __str__())
 
     @staticmethod
     def list_to_str(vals: dict) -> tuple:
         if not vals:
             return "", [], ""
+
+        vals = {k: v for k, v in vals.items() if k != "value"}
 
         def _list_to_str(vals: list) -> str:
             vals_str = "("
@@ -108,6 +102,7 @@ class DbConnect:
     def dict_to_str(vals: dict) -> str:
         if not vals:
             return ""
+        vals = {k: v for k, v in vals.items() if k != "value"}
         vals_str = ""
         keys = list(vals.keys())
         l = keys[-1]

@@ -3,7 +3,7 @@ import requests
 import curlify
 import logging, json
 import datetime
-from includes.config import ALERT_API_BASE_URL, envs
+from includes.config import ALERT_API_BASE_URL, ALERT_API_TOKEN
 from tools.utils import parse_data, flatten, build_dict
 
 
@@ -19,22 +19,18 @@ def make_request(params: dict, url: str, route: str, headers: list = None) -> li
 
 def get_map_data(
     route: str,
+    value,
     url: str = ALERT_API_BASE_URL,
-    token: str = None,
+    token: str = ALERT_API_TOKEN,
     params: list = [],
     msg=None,
     update_id: str = None,
 ) -> tuple:
 
-    # new_token = "/new_token/"
-    # register = "/register_address/"
-    params = json.dumps(params)
+    params = json.dumps(build_dict(msg, update_id, value))
+    logging.info(params)
 
-    if route == "new_token":
-        params = json.dumps(build_dict(msg, update_id))
-        logging.info(params)
-
-    headers = {"api-token": envs.ALERT_API_TOKEN}
+    headers = {"api-token": token}
     kw = dict(url=url, route=route, headers=headers)
 
     st = datetime.datetime.now()
@@ -49,4 +45,4 @@ def get_map_data(
     except Exception as e:
         msg = f"Something Happened :: {e}"
         logging.error(msg)
-    return False, msg
+        return False, msg

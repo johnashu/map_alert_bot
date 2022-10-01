@@ -6,4 +6,4 @@ The following commands are available:
 👉 /help 
 👉 /new_token
 👉 /register
-
+👉 /validator_summary [0x Address]

@@ -28,4 +28,4 @@ class Envs:
                 )
                 os.environ[k] = v
                 # print('set', k, v)
-                # print(self.SECRET_KEY)
+                # print(self.JWT_SECRET_KEY)

@@ -119,19 +119,20 @@ def parse_data(context: dict) -> None:
     return parsed
 
 
-def build_dict(m, update_id) -> dict:
+def build_dict(msg, update_id, value) -> dict:
     from datetime import datetime as dt
 
     return {
+        "value": value,
         "update_id": update_id,
-        "chat_id": m.chat.id,
-        "user_id": m["from"].id,
-        "first_name": m.chat.first_name,
-        "username": m.chat.username,
-        "text": m.text,
-        "message_id": m.message_id,
-        "language_code": m["from"].language_code,
-        "is_bot": m["from"].is_bot,
+        "chat_id": msg.chat.id,
+        "user_id": msg["from"].id,
+        "first_name": msg.chat.first_name,
+        "username": msg.chat.username,
+        "text": msg.text,
+        "message_id": msg.message_id,
+        "language_code": msg["from"].language_code,
+        "is_bot": msg["from"].is_bot,
     }
 
 

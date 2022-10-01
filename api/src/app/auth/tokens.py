@@ -1,6 +1,6 @@
 import jwt
 import datetime
-from includes.config import SECRET_KEY
+from includes.config import JWT_SECRET_KEY
 
 
 class Token:
@@ -9,7 +9,7 @@ class Token:
         if valid_token:
             return True
         else:
-            body = [{"error": self.token_refused, "msg": msg}]
+            body = {"error": self.token_refused, "msg": msg}
             await self.send_response(body, status=401)
         return False
 
@@ -28,7 +28,7 @@ class Token:
                 "iat": datetime.datetime.utcnow(),
                 "sub": user_id,
             }
-            return True, jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+            return True, jwt.encode(payload, JWT_SECRET_KEY, algorithm="HS256")
         except Exception as e:
             return False, e
 
@@ -39,7 +39,7 @@ class Token:
         :return: integer|string
         """
         try:
-            payload = jwt.decode(auth_token, SECRET_KEY, algorithms="HS256")
+            payload = jwt.decode(auth_token, JWT_SECRET_KEY, algorithms="HS256")
             print(payload)
             return True, payload["sub"], "success"
         except jwt.ExpiredSignatureError:

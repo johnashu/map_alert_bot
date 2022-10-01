@@ -1,6 +1,7 @@
 #
 # By Maffaz 2021 - maffaz.one
 #
+import messages.msg_templates as Templates
 from telegram.ext import (
     CommandHandler,
     filters,
@@ -16,7 +17,7 @@ from rpc.alert_api import get_map_data
 from tools.helpers import *
 from tools.utils import *
 from includes.config import *
-from messages.msg_templates import Templates
+
 
 logging.info(f"{bot_name} Bot started")
 
@@ -42,24 +43,30 @@ class MapBot:
 
         try:
             if api_call:
-                to_display = ""
+                to_display = "To Display:\n"
                 msg = update.message
                 update_id = update.update_id
-                endpoint = msg.text[1:]
+                s = msg.text[1:].split(" ")
+                endpoint, value = s[0], ""
+                if len(s) > 1:
+                    value = s[1]
 
-                res, data = get_map_data(endpoint, msg=msg, update_id=update_id)
+                log.info(
+                    f"Endpoint:  {endpoint}  ::  Value:  [ {value} ]  ::  len(s):  {len(s)}"
+                )
+
+                res, data = get_map_data(endpoint, value, msg=msg, update_id=update_id)
+                log.info(f"DATA:  {data}")
                 if res:
-                    # to_display += "<code>"
                     if isinstance(data, dict):
                         for k, v in data.items():
-                            to_display += f"<b>{k}</b>  ::  {v}\n"
-                    # to_display += "</code>"
+                            to_display += f"<b>{k.title()}</b>  ::  {v}\n"
                 else:
                     to_display += str(data)
 
             return to_display
         except Exception as e:
-            return Templates.GenericError
+            return Templates.GenericError + e
 
     async def help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg = open_file(help_msg_file)
@@ -86,7 +93,7 @@ class MapBot:
     async def handle_endpoints(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ):
-        print(f"\n\nUpdate:\n{update}\n\nContext:{context}")
+        print(f"\n\nUpdate:\n{update}")
         to_display = await self.handle_msg(update, None, True)
         print(to_display)
         m = await context.bot.send_message(
@@ -95,7 +102,7 @@ class MapBot:
         # await self.delete_in_q(update, context, self.delete_msg, m)
 
     def main(self):
-        application = ApplicationBuilder().token(envs.TG_API_KEY).build()
+        application = ApplicationBuilder().token(TG_API_KEY).build()
 
         for c, m in list(MENU_ITEMS.items()):
             cmd = CommandHandler(c, self.__getattribute__(m))

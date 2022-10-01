@@ -83,6 +83,7 @@ services:
     command: python3 /usr/src/app/main.py
     environment:
       - TG_API_KEY=${TG_API_KEY} 
+      - ALERT_API_TOKEN=${ALERT_API_TOKEN} 
       - ALERT_API_BASE_URL=${ALERT_API_BASE_URL}  
       - IS_DOCKER=True  
     volumes:

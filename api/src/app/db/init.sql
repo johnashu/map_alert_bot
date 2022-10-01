@@ -9,6 +9,7 @@
 
 -- DROP DATABASE IF EXISTS alerts_db
 
+
     
 CREATE DATABASE alerts_db
     WITH 

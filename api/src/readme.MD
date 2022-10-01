@@ -1,6 +1,6 @@
 .env
 
-SECRET_KEY=
+JWT_SECRET_KEY=
 TG_API_KEY=
 
 POSTGRES_USER=maffaz

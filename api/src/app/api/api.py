@@ -24,7 +24,7 @@ class Api(Routes, Messages, Token):
         if not is_new_token:
             self.token = dict((x, y) for x, y in self.headers).get(b"api-token")
             if not self.token:
-                body = [{"error": self.no_token_found}]
+                body = {"error": self.no_token_found}
                 return await self.send_response(body, status=400)
             else:
                 self.token.decode()
@@ -42,7 +42,7 @@ class Api(Routes, Messages, Token):
 
     async def parse_request(self) -> bool:
         if not self.query:
-            body = [{"error": self.empty_msg}]
+            body = {"error": self.empty_msg}
             return False, await self.send_response(body, status=400)
 
         dec = urllib.parse.unquote(self.query.decode())

@@ -15,8 +15,14 @@ verbose = True
 envs = Envs(envFile=".env")
 log = start_logger(verbose=verbose)
 
-# if not envs.IS_DOCKER:
-#     ALERT_API_BASE_URL = "http://127.0.0.1:8000/"
+
+TG_API_KEY = os.getenv("TG_API_KEY", "Not Found a TG_API_KEY..")
+ALERT_API_TOKEN = os.getenv("ALERT_API_TOKEN", "Not Found a ALERT_API_TOKEN..")
+ALERT_API_BASE_URL = os.getenv("ALERT_API_BASE_URL", "Not Found a ALERT_API_BASE_URL..")
+IS_DOCKER = os.getenv("IS_DOCKER", False)
+
+if not IS_DOCKER:
+    ALERT_API_BASE_URL = "http://127.0.0.1:8000/"
 
 
 version = "1.0.0"
@@ -46,5 +52,7 @@ MENU_ITEMS = {
     "error": "error",
     # Endpoints
     "new_token": "handle_endpoints",
+    "delete_token": "handle_endpoints",
     "register": "handle_endpoints",
+    "validator_summary": "handle_endpoints",
 }
