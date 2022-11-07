@@ -59,11 +59,12 @@ class DbConnect:
         # fetchone = 1, fetchmany = 2 fetchall = 3
         fetches = {1: "fetchone", 2: "fetchmany", 3: "fetchall"}
 
-        where = f"WHERE {where}"
-        if not where:
-            where = ""
+        WHERE = f"WHERE {where}"
 
-        SQL = f"SELECT * FROM {self.table}" + where
+        if not where:
+            WHERE = ""
+
+        SQL = f"SELECT * FROM {self.table} {WHERE}"
 
         await self.acur.execute(SQL)
         get = self.acur.__getattribute__(fetches[fetch])

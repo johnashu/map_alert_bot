@@ -40,7 +40,7 @@ class Token:
         """
         try:
             payload = jwt.decode(auth_token, JWT_SECRET_KEY, algorithms="HS256")
-            print(payload)
+            # print(payload)
             return True, payload["sub"], "success"
         except jwt.ExpiredSignatureError:
             return False, "Not Found", "Signature expired. Please log in again."

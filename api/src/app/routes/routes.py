@@ -63,4 +63,4 @@ class Routes(DbConnect):
             ]
             await self.send_response(body, status=200)
         except requests.exceptions.ConnectionError as e:
-            pass
+            log.error(e)

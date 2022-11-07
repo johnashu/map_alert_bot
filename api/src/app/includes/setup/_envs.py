@@ -27,5 +27,3 @@ class Envs:
                     else v,
                 )
                 os.environ[k] = v
-                # print('set', k, v)
-                # print(self.JWT_SECRET_KEY)
